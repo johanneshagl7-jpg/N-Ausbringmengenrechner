@@ -5,6 +5,7 @@ export default function App() {
   const [speed, setSpeed] = useState(8);
   const [pto, setPto] = useState(540);
   const [width, setWidth] = useState(12);
+  const [overlap, setOverlap] = useState(50);
   const [factor, setFactor] = useState(10);
   const [density, setDensity] = useState(0.8);
   const [nPerTon, setNPerTon] = useState(6);
@@ -12,22 +13,23 @@ export default function App() {
   const [decimals, setDecimals] = useState(1);
 
   const results = useMemo(() => {
+    const effectiveWidth = width * (1 - overlap / 100);
     const adjustedFactor = factor * (scraperSpeed / 100);
     const volFlow = adjustedFactor * (pto / 1000);
-    const haPerHour = (speed * width) / 10;
+    const haPerHour = effectiveWidth > 0 ? (speed * effectiveWidth) / 10 : 0;
     const m3PerHa = haPerHour > 0 ? volFlow / haPerHour : 0;
     const tPerHa = m3PerHa * density;
     const kgNPerHa = tPerHa * nPerTon;
 
-    return { adjustedFactor, volFlow, haPerHour, m3PerHa, tPerHa, kgNPerHa };
-  }, [speed, pto, width, factor, density, nPerTon, scraperSpeed]);
+    return { effectiveWidth, adjustedFactor, volFlow, haPerHour, m3PerHa, tPerHa, kgNPerHa };
+  }, [speed, pto, width, overlap, factor, density, nPerTon, scraperSpeed]);
 
   const fmt = (v) => Number(v).toFixed(decimals);
 
   return (
     <div className="container">
       <h1>N‑Ausbringungsrechner — Rindermist</h1>
-      <p>Berechne live kg N/ha mit Kratzbodengeschwindigkeit, Vorschub und Zapfwelle.</p>
+      <p>Berechne live kg N/ha mit Kratzbodengeschwindigkeit, Vorschub, Zapfwelle und Überlappung.</p>
 
       <div className="grid">
         <label>Vorschub (km/h)
@@ -42,6 +44,9 @@ export default function App() {
         <label>Arbeitsbreite (m)
           <input type="number" value={width} onChange={(e)=>setWidth(parseFloat(e.target.value)||0)} />
         </label>
+        <label>Überlappung (%)
+          <input type="number" value={overlap} min="0" max="90" onChange={(e)=>setOverlap(parseFloat(e.target.value)||0)} />
+        </label>
         <label>Faktor (m³/h pro 1000 rpm bei 100%)
           <input type="number" value={factor} onChange={(e)=>setFactor(parseFloat(e.target.value)||0)} />
         </label>
@@ -54,6 +59,7 @@ export default function App() {
       </div>
 
       <div className="results">
+        <p>Effektive Arbeitsbreite: {fmt(results.effectiveWidth)} m</p>
         <p>Effektiver Faktor: {fmt(results.adjustedFactor)}</p>
         <p>Volumenstrom (m³/h): {fmt(results.volFlow)}</p>
         <p>Hektar / h: {fmt(results.haPerHour)}</p>
