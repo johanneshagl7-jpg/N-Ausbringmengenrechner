@@ -7,13 +7,22 @@ export default function NRechner() {
   const [faktor, setFaktor] = useState(10); // m³/ha bei 1000 rpm
   const [ergebnis, setErgebnis] = useState(null);
   const [history, setHistory] = useState([]);
+  const [darkMode, setDarkMode] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem("nHistory");
-    if (saved) {
-      setHistory(JSON.parse(saved));
+    const savedHistory = localStorage.getItem("nHistory");
+    if (savedHistory) {
+      setHistory(JSON.parse(savedHistory));
+    }
+    const savedTheme = localStorage.getItem("darkMode");
+    if (savedTheme) {
+      setDarkMode(savedTheme === "true");
     }
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem("darkMode", darkMode);
+  }, [darkMode]);
 
   const calc = (e) => {
     e.preventDefault();
@@ -58,8 +67,24 @@ export default function NRechner() {
   };
 
   return (
-    <div style={{ maxWidth: "500px", margin: "20px auto", fontFamily: "sans-serif" }}>
-      <h2>N-Ausbringungsrechner</h2>
+    <div
+      style={{
+        maxWidth: "500px",
+        margin: "20px auto",
+        fontFamily: "sans-serif",
+        backgroundColor: darkMode ? "#121212" : "#fff",
+        color: darkMode ? "#eee" : "#000",
+        padding: "20px",
+        borderRadius: "10px"
+      }}
+    >
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <h2>N-Ausbringungsrechner</h2>
+        <button onClick={() => setDarkMode(!darkMode)}>
+          {darkMode ? "☀️ Hell" : "🌙 Dunkel"}
+        </button>
+      </div>
+
       <form onSubmit={calc}>
         <div>
           <label>Schlaggröße (ha):</label>
@@ -74,8 +99,15 @@ export default function NRechner() {
           <input type="number" step="0.01" value={nGehalt} onChange={(e) => setNGehalt(e.target.value)} />
         </div>
         <div>
-          <label>Faktor (m³/ha @ 1000 rpm):</label>
-          <input type="number" min="10" max="160" step="1" value={faktor} onChange={(e) => setFaktor(e.target.value)} />
+          <label>Faktor (m³/ha @ 1000 rpm): {faktor}</label>
+          <input
+            type="range"
+            min="10"
+            max="160"
+            step="1"
+            value={faktor}
+            onChange={(e) => setFaktor(e.target.value)}
+          />
         </div>
         <button type="submit">Berechnen</button>
       </form>
