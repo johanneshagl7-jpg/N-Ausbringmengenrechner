@@ -11,37 +11,10 @@ export default function NAusbringungsRechner() {
   const [scraperSpeed, setScraperSpeed] = useState(50);
   const [decimals, setDecimals] = useState(1);
   const [dark, setDark] = useState(false);
-  const [gpsActive, setGpsActive] = useState(false);
-  const [manureType, setManureType] = useState("rind");
 
   useEffect(() => {
     document.documentElement.style.background = dark ? '#0f172a' : '#f8fafc';
   }, [dark]);
-
-  useEffect(() => {
-    if (manureType === "rind") {
-      setDensity(0.8);
-      setNPerTon(6);
-    } else if (manureType === "schwein") {
-      setDensity(0.7);
-      setNPerTon(7);
-    } else if (manureType === "kompost") {
-      setDensity(0.9);
-      setNPerTon(8);
-    }
-  }, [manureType]);
-
-  useEffect(() => {
-    if (gpsActive && navigator.geolocation) {
-      const watchId = navigator.geolocation.watchPosition((pos) => {
-        const ms = pos.coords.speed;
-        if (ms !== null) {
-          setSpeed(ms * 3.6);
-        }
-      });
-      return () => navigator.geolocation.clearWatch(watchId);
-    }
-  }, [gpsActive]);
 
   const results = useMemo(() => {
     const effectiveWidth = width * (1 - overlap / 100);
@@ -68,12 +41,8 @@ export default function NAusbringungsRechner() {
     <div style={{ maxWidth: 900, margin: '20px auto', fontFamily: 'Inter, system-ui, sans-serif', ...containerStyle }}>
       <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-          <div style={{ fontWeight: 800, fontSize: 20, color: '#228B22' }}>TEBBE</div>
-          <select value={manureType} onChange={(e)=>setManureType(e.target.value)}>
-            <option value="rind">Rindermist</option>
-            <option value="schwein">Schweinemist</option>
-            <option value="kompost">Kompost</option>
-          </select>
+          <div style={{ fontWeight: 800, fontSize: 20, color: '#d32f2f' }}>TEBBE</div>
+          <div style={{ fontSize: 18, fontWeight: 700 }}>N‑Ausbringungsrechner — Rindermist</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <label style={{ fontSize: 14 }}>{dark ? 'Dark' : 'Light'}</label>
@@ -83,12 +52,9 @@ export default function NAusbringungsRechner() {
 
       <main style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: 16 }}>
         <section style={cardStyle}>
-          <p style={{ marginTop: 0, marginBottom: 12 }}>Berechne live kg N/ha mit Kratzbodengeschwindigkeit, Vorschub (manuell oder GPS), Zapfwelle und Überlappung.</p>
+          <p style={{ marginTop: 0, marginBottom: 12 }}>Berechne live kg N/ha mit Kratzbodengeschwindigkeit, Vorschub, Zapfwelle und Überlappung.</p>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10 }}>
-            <label>Vorschub (km/h)
-              <input type="number" value={speed} onChange={(e)=>setSpeed(parseFloat(e.target.value)||0)} disabled={gpsActive} />
-              <button onClick={()=>setGpsActive(a=>!a)} style={{ marginTop: 4 }}>{gpsActive ? "GPS Stop" : "📡 GPS"}</button>
-            </label>
+            <label>Vorschub (km/h)<input type="number" value={speed} onChange={(e)=>setSpeed(parseFloat(e.target.value)||0)} /></label>
             <label>Zapfwelle (U/min)<input type="number" value={pto} onChange={(e)=>setPto(parseFloat(e.target.value)||0)} /></label>
             <label>Kratzboden (%)<input type="number" value={scraperSpeed} onChange={(e)=>setScraperSpeed(parseFloat(e.target.value)||0)} /></label>
             <label>Arbeitsbreite (m)<input type="number" value={width} onChange={(e)=>setWidth(parseFloat(e.target.value)||0)} /></label>
