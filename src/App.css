@@ -1,1 +1,1 @@
-.container { max-width: 600px; margin: auto; font-family: sans-serif; } .grid { display: grid; gap: 10px; } input { width: 100%; padding: 4px; } .results { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+body { margin: 0; font-family: sans-serif; }
