@@ -112,7 +112,6 @@ export default function NAusbringungsRechner() {
       </main>
 
       <footer style={{ position: 'fixed', right: 12, bottom: 12, fontSize: 12 }}>Programmiert von Johannes Hagl.</footer>
-      <TerrazzoCard />
-</div>
+    </div>
   );
 }
